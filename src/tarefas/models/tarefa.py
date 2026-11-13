@@ -24,6 +24,7 @@ class Tarefa:
         with Database() as db:
             db.executar(sql, params)
 
+
     @staticmethod
     def listarTarefa():
         """retorna lista com todas as tarefas cadastradas. """
@@ -35,6 +36,8 @@ class Tarefa:
             tarefas_banco = db.executar(sql)
 
         return tarefas_banco if tarefas_banco else []
+
+
 
 
 # Área 51 (testes)
