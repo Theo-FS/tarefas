@@ -1,34 +1,14 @@
-
-from datetime import datetime
-
-from tarefas.models.database import Database
-
+from src.tarefas.models.database import Database
 
 class Tarefa:
-    """Provê métodos para armazenar, recuperar e processar os dados das tarefas criadas a partir do formulário principal.
-    """
-
-    def __init__(self, titulo, id=None, data_conclusao=None):
-        self.id = id
-        self.titulo = titulo
+    def __init__(self, id_tarefa=None, titulo_tarefa=None, data_conclusao=None):
+        self.id_tarefa = id_tarefa
+        self.titulo_tarefa = titulo_tarefa
         self.data_conclusao = data_conclusao
-
-    def salvarTarefa(self):
-        """Salva a tarefa no banco de dados."""
-
-        sql = 'INSERT INTO tarefa(titulo_tarefa, data_conclusao) VALUES (%s, %s);'
-        params = (self.titulo, self.data_conclusao)
-
-        # Gerenciador de contexto (with)
-        # Acessa os métodos __enter__ e __exit__
-        with Database() as db:
-            db.executar(sql, params)
-
 
     @staticmethod
     def listarTarefa():
-        """retorna lista com todas as tarefas cadastradas. """
-
+        """Retorna lista com todas as tarefas cadastradas."""
         sql = '''SELECT id_tarefa, titulo_tarefa, data_conclusao
         FROM tarefa LIMIT 100;'''
 
@@ -37,9 +17,31 @@ class Tarefa:
 
         return tarefas_banco if tarefas_banco else []
 
+    @staticmethod
+    def inserir(titulo_tarefa, data_conclusao):
+        """Insere uma nova tarefa no banco de dados."""
+        sql = 'INSERT INTO tarefa (titulo_tarefa, data_conclusao) VALUES (%s, %s);'
+        with Database() as db:
+            db.executar(sql, (titulo_tarefa, data_conclusao))
 
+    @staticmethod
+    def carregarPorId(id_tarefa):
+        """Busca uma única tarefa no banco pelo ID para edição."""
+        sql = 'SELECT id_tarefa, titulo_tarefa, data_conclusao FROM tarefa WHERE id_tarefa = %s;'
+        with Database() as db:
+            resultado = db.executar(sql, (id_tarefa,))
+        return resultado[0] if resultado else None
 
+    @staticmethod
+    def atualizar(id_tarefa, titulo_tarefa, data_conclusao):
+        """Atualiza os dados de uma tarefa existente no banco."""
+        sql = 'UPDATE tarefa SET titulo_tarefa = %s, data_conclusao = %s WHERE id_tarefa = %s;'
+        with Database() as db:
+            db.executar(sql, (titulo_tarefa, data_conclusao, id_tarefa))
 
-# Área 51 (testes)
-tarefa = Tarefa('Minha nova tarefa')
-tarefa.salvarTarefa()
+    @staticmethod
+    def apagar(id_tarefa):
+        """Remove uma tarefa do banco pelo ID."""
+        sql = 'DELETE FROM tarefa WHERE id_tarefa = %s;'
+        with Database() as db:
+            db.executar(sql, (id_tarefa,))

@@ -1,48 +1,46 @@
 from flask import Flask, render_template, request, redirect, url_for
-from tarefas.models.database import Database
+from src.tarefas.models.tarefa import Tarefa
 
 app = Flask(__name__)
 
-def apagar_id_especificado(id):
-    """
-    Apaga uma tarefa específica do banco de dados MySQL com base no ID fornecido.
-    """
-    with Database() as db:
-        # Corrigido para 'id_tarefa' para bater com o SELECT e com a sua tabela
-        sql = "DELETE FROM tarefa WHERE id_tarefa = %s;"
-        db.executar(sql, (id,))
-
 @app.route('/', methods=['GET', 'POST'])
-def home():
+def index():
     if request.method == 'POST':
+        # Pega os dados enviados pelo formulário de cadastro
         titulo = request.form.get('tituloTarefa')
         data = request.form.get('dataConclusao')
         
-        if titulo:
-            with Database() as db:
-                sql = "INSERT INTO tarefa (titulo_tarefa, data_conclusao) VALUES (%s, %s);"
-                db.executar(sql, (titulo, data if data else None))
-                
-        return redirect(url_for('home'))
+        # Insere a nova tarefa no banco de dados
+        Tarefa.inserir(titulo, data)
+        return redirect(url_for('index'))
+    
+    # Carrega todas as tarefas para exibir na página principal
+    tarefas = Tarefa.listarTarefa()
+    return render_template('base.html', titulo="Lista de Tarefas", tarefas_da_pagina=tarefas, tarefa_a_editar=None)
 
-    # Busca todas as tarefas cadastradas no banco de dados
-    tarefas_da_pagina = []
-    with Database() as db:
-        resultado = db.executar("SELECT id_tarefa, titulo_tarefa, data_conclusao FROM tarefa;")
-        if resultado:
-            tarefas_da_pagina = resultado
-
-    return render_template(
-        'base.html',
-        titulo='Lista de Tarefas do Theo',
-        tarefas_da_pagina=tarefas_da_pagina
-    )
+@app.route('/editar/<int:id>', methods=['GET', 'POST'])
+def editar_tarefa(id):
+    if request.method == 'POST':
+        # Pega os novos valores enviados pelo formulário ao clicar em 'Atualizar'
+        titulo = request.form.get('tituloTarefa')
+        data = request.form.get('dataConclusao')
+        
+        # Salva as alterações no banco de dados
+        Tarefa.atualizar(id, titulo, data)
+        return redirect(url_for('index'))
+    
+    # Se for GET, busca a tarefa específica para preencher o formulário
+    tarefa_selecionada = Tarefa.carregarPorId(id)
+    # Carrega a lista completa para manter a tabela visível na tela
+    tarefas = Tarefa.listarTarefa()
+    
+    return render_template('base.html', titulo="Editar Tarefa", tarefas_da_pagina=tarefas, tarefa_a_editar=tarefa_selecionada)
 
 @app.route('/apagar/<int:id>')
 def apagar_tarefa(id):
-    apagar_id_especificado(id)
-    return redirect(url_for('home'))
-    
+    # Remove a tarefa do banco pelo ID
+    Tarefa.apagar(id)
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)

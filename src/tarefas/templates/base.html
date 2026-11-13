@@ -9,10 +9,15 @@
 <body>
     <h1>Digite a tarefa e a data de conclusão (opcional):</h1>
 
-    <form method="POST">
-        <input type="text" id="tituloTarefa" name="tituloTarefa" placeholder="Nome da tarefa" required>
-        <input type="date" id="dataConclusao" name="dataConclusao">
-        <button type="submit">Adicionar</button>
+    <!-- O formulário muda dinamicamente se estivermos editando -->
+    <form method="POST" action="{% if tarefa_a_editar %}{{ url_for('editar_tarefa', id=tarefa_a_editar.id_tarefa) }}{% else %}{{ url_for('index') }}{% endif %}">
+        <input type="text" id="tituloTarefa" name="tituloTarefa" placeholder="Nome da tarefa" value="{{ tarefa_a_editar.titulo_tarefa if tarefa_a_editar else '' }}" required>
+        <input type="date" id="dataConclusao" name="dataConclusao" value="{{ tarefa_a_editar.data_conclusao if tarefa_a_editar else '' }}">
+        
+        <!-- O botão muda de 'Adicionar' para 'Atualizar' se houver tarefa selecionada -->
+        <button type="submit">
+            {% if tarefa_a_editar %}Atualizar{% else %}Adicionar{% endif %}
+        </button>
     </form>
 
     <ul id="listaTarefas">
@@ -20,7 +25,14 @@
         <li>
             {{ tarefa.titulo_tarefa }} - {{ tarefa.data_conclusao }}
             
-            <!-- Corrigido de tarefa.id para tarefa.id_tarefa -->
+            <!-- Botão de Editar -->
+            <a href="{{ url_for('editar_tarefa', id=tarefa.id_tarefa) }}">
+                <button type="button" style="background-color: #ffa500; color: white; border: none; padding: 2px 6px; cursor: pointer; margin-right: 4px;">
+                    EDITAR
+                </button>
+            </a>
+
+            <!-- Botão de Apagar -->
             <a href="{{ url_for('apagar_tarefa', id=tarefa.id_tarefa) }}">
                 <button type="button" style="background-color: #ff4d4d; color: white; border: none; padding: 2px 6px; cursor: pointer; border-radius: 4px;">
                     APAGAR
