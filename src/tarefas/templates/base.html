@@ -7,85 +7,27 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-   <h1>Digite a tarefa e a data de conclusão (opcional):</h1>
+    <h1>Digite a tarefa e a data de conclusão (opcional):</h1>
 
-   <input type="text" id="tituloTarefa">
-   <input type="date" id="dataConclusao">
-   <button type="button" onclick="adicionar()">Adicionar</button>
-   <output id="listaTarefas">Nenhuma tarefa cadastrada</output>
+    <form method="POST">
+        <input type="text" id="tituloTarefa" name="tituloTarefa" placeholder="Nome da tarefa" required>
+        <input type="date" id="dataConclusao" name="dataConclusao">
+        <button type="submit">Adicionar</button>
+    </form>
 
-   <script>
-    // Aplicação MVC (Modelagem-View-Controller)
-
-    //seção de modelagem
-    let tarefas;
-    const tarefasSalvas = JSON.parse(localStorage.getItem('tarefas'));
-
-    if (Array.isArray(tarefasSalvas)) {
-        tarefas = tarefasSalvas;
-    } else {
-        tarefas = [];
-    }
-
-    function salvarTarefas() {
-        localStorage.setItem('tarefas', JSON.stringify(tarefas));
-    }
-
-    // Seção de Visualização
-    function renderizarTarefas() {
-        const listaTarefas = document.getElementById('listaTarefas');
-        listaTarefas.innerHTML = "";
-
-        if (tarefas.length === 0) {
-            listaTarefas.innerHTML = "Nenhuma tarefa cadastrada";
-        }
-
-        tarefas.forEach(function (tarefa) {
-            const divTarefa = document.createElement('div');
-            divTarefa.innerHTML = tarefa.tituloTarefa + ' - ' + tarefa.dataConclusao;
-
-            const botaoApagar = document.createElement('button');
-            botaoApagar.innerHTML = "X Apagar";
-            botaoApagar.onclick = apagarTarefa;
-            botaoApagar.id = tarefa.idTarefa;
-
-            divTarefa.appendChild(botaoApagar);
-            listaTarefas.appendChild(divTarefa);
-        });
-    }
-
-    function adicionar() {
-        const tituloTarefa = document.getElementById('tituloTarefa').value;
-        const dataConclusao = document.getElementById('dataConclusao').value;
-
-        tarefas.push({
-            tituloTarefa: tituloTarefa,
-            dataConclusao: dataConclusao,
-            idTarefa: Date.now()
-        });
-
-        salvarTarefas();
-        renderizarTarefas();
-    }
-
-    function apagarTarefa(evento) {
-        const botaoClicado = evento.target;
-        const idTarefa = Number(botaoClicado.id);
-
-        tarefas = tarefas.filter(function (tarefa) {
-            if (tarefa.idTarefa == idTarefa) {
-                return false;
-            } else {
-                return true;
-            }
-        });
-
-        salvarTarefas();
-        renderizarTarefas();
-    }
-
-    renderizarTarefas();
-
-   </script>
+    <ul id="listaTarefas">
+        {% for tarefa in tarefas_da_pagina %}
+        <li>
+            {{ tarefa.titulo_tarefa }} - {{ tarefa.data_conclusao }}
+            
+            <!-- Corrigido de tarefa.id para tarefa.id_tarefa -->
+            <a href="{{ url_for('apagar_tarefa', id=tarefa.id_tarefa) }}">
+                <button type="button" style="background-color: #ff4d4d; color: white; border: none; padding: 2px 6px; cursor: pointer; border-radius: 4px;">
+                    APAGAR
+                </button>
+            </a>
+        </li>
+        {% endfor %}
+    </ul>
 </body>
 </html>

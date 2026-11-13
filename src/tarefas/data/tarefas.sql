@@ -1,9 +1,8 @@
-CREATE DATABASE IF NOT EXISTS 'tarefas';
+CREATE DATABASE IF NOT EXISTS seu_banco;
+USE seu_banco;
 
-USE 'tarefas';
-
-CREATE TABLE IF NOT EXISTS 'tarefa' (
-    id_tarefa INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    titulo_tarefa VARCHAR(100) NOT NULL,
-    data_conclusao DATETIME NULL
-)
+CREATE TABLE IF NOT EXISTS tarefa (
+    id_tarefa INT AUTO_INCREMENT PRIMARY KEY,
+    titulo_tarefa VARCHAR(150) NOT NULL,
+    data_conclusao DATETIME DEFAULT NULL
+);

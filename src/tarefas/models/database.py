@@ -42,7 +42,6 @@ class Database:
             self.connection = None
             self.cursor = None
 
-    #metoto 
     def desconectar(self):
         """Encerra a conexão com o banco de dados e o cursor, se existirem."""
 
@@ -53,6 +52,15 @@ class Database:
             self.connection.close()
 
         print('Conexão encerrada com sucesso!')
+
+    def __enter__(self):
+        """Permite o uso da classe com o gerenciador de contexto 'with'."""
+        self.conectar()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Fecha a conexão automaticamente ao sair do bloco 'with'."""
+        self.desconectar()
 
     def executar(self, sql, params=None):
         """Executa uma instrução no banco de dados."""
@@ -136,12 +144,6 @@ def init_db(sql_filepath=None):
 
         if conexao and conexao.is_connected():
             conexao.close()
-
-
-""" Área 51
-Tudo o que for escrito nessa área
-será lido e executado como string.
-"""
 
 
 if __name__ == '__main__':
