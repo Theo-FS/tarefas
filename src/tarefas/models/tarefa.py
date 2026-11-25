@@ -1,5 +1,6 @@
 from src.tarefas.models.database import Database
 
+
 class Tarefa:
     def __init__(self, id_tarefa=None, titulo_tarefa=None, data_conclusao=None):
         self.id_tarefa = id_tarefa
@@ -10,7 +11,7 @@ class Tarefa:
     def listarTarefa():
         """Retorna lista com todas as tarefas cadastradas."""
         sql = '''SELECT id_tarefa, titulo_tarefa, data_conclusao
-        FROM tarefa LIMIT 100;'''
+                 FROM tarefa LIMIT 100;'''
 
         with Database() as db:
             tarefas_banco = db.executar(sql)
@@ -21,8 +22,9 @@ class Tarefa:
     def inserir(titulo_tarefa, data_conclusao):
         """Insere uma nova tarefa no banco de dados."""
         sql = 'INSERT INTO tarefa (titulo_tarefa, data_conclusao) VALUES (%s, %s);'
+        data_formatada = data_conclusao if data_conclusao else None
         with Database() as db:
-            db.executar(sql, (titulo_tarefa, data_conclusao))
+            return db.executar(sql, (titulo_tarefa, data_formatada))
 
     @staticmethod
     def carregarPorId(id_tarefa):
@@ -36,12 +38,13 @@ class Tarefa:
     def atualizar(id_tarefa, titulo_tarefa, data_conclusao):
         """Atualiza os dados de uma tarefa existente no banco."""
         sql = 'UPDATE tarefa SET titulo_tarefa = %s, data_conclusao = %s WHERE id_tarefa = %s;'
+        data_formatada = data_conclusao if data_conclusao else None
         with Database() as db:
-            db.executar(sql, (titulo_tarefa, data_conclusao, id_tarefa))
+            return db.executar(sql, (titulo_tarefa, data_formatada, id_tarefa))
 
     @staticmethod
     def apagar(id_tarefa):
         """Remove uma tarefa do banco pelo ID."""
         sql = 'DELETE FROM tarefa WHERE id_tarefa = %s;'
         with Database() as db:
-            db.executar(sql, (id_tarefa,))
+            return db.executar(sql, (id_tarefa,))
